@@ -1,0 +1,24 @@
+(function(){
+  'use strict';
+  var STORE_KEY='sadaqah_basket_v1';
+  function getBasket(){try{var b=JSON.parse(localStorage.getItem(STORE_KEY)||'{}');return b && typeof b==='object' && !Array.isArray(b)?b:{};}catch(e){return {};}}
+  function setBasket(b){localStorage.setItem(STORE_KEY,JSON.stringify(b));refreshCount();}
+  function refreshCount(){var total=Object.values(getBasket()).reduce(function(a,b){return a+(Number(b)||0);},0);document.querySelectorAll('[data-basket-count]').forEach(function(x){x.textContent=Math.max(0,total);});}
+  var toastTimer;
+  function showToast(m){var e=document.getElementById('toast');if(!e)return;e.textContent=m;e.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(function(){e.classList.remove('show');},2800);}
+  document.querySelectorAll('[data-add]').forEach(function(btn){btn.addEventListener('click',function(){var id=btn.dataset.add;var b=getBasket();b[id]=Math.min(99,(Number(b[id])||0)+1);setBasket(b);showToast('Saved to your basket. View basket to send a request.');});});
+  var mobile=document.querySelector('.mobile-menu-toggle'),nav=document.getElementById('site-nav');
+  if(mobile&&nav){mobile.addEventListener('click',function(){var expanded=mobile.getAttribute('aria-expanded')==='true';mobile.setAttribute('aria-expanded',String(!expanded));nav.classList.toggle('open',!expanded);});}
+  async function refreshHours(){try{var response=await fetch('/api/status',{cache:'no-store'});if(!response.ok)return;var data=await response.json(),el=document.getElementById('open-indicator');if(el){el.querySelector('span:last-child').textContent=data.label;el.querySelector('.status-dot').classList.toggle('is-open',data.open);}var contact=document.getElementById('contact-hours');if(contact)contact.textContent=data.today+': '+data.hours;}catch(err){ /* Server-rendered value remains visible */ }}
+  refreshHours();setInterval(refreshHours,60000);
+  var catalogEl=document.getElementById('product-catalog'), basketLines=document.getElementById('basket-lines');
+  if(catalogEl && basketLines){var catalog=JSON.parse(catalogEl.textContent),byId=Object.fromEntries(catalog.map(function(p){return [p.id,p];}));
+    function mk(tag,cls,txt){var el=document.createElement(tag);if(cls)el.className=cls;if(txt!==undefined)el.textContent=txt;return el;}
+    function renderBasket(){var b=getBasket(),known=Object.entries(b).filter(function(pair){return byId[pair[0]]&&Number(pair[1])>0;});basketLines.replaceChildren();var total=0;
+      if(!known.length){var empty=mk('div','basket-empty');empty.append(mk('h2','', 'Nothing here yet.'),mk('p','','Explore the collection and save what you love.'));var link=mk('a','btn btn-dark','Browse the shop ↗');link.href='/shop';empty.appendChild(link);basketLines.appendChild(empty);}else{
+        known.forEach(function(pair){var id=pair[0],qty=Number(pair[1]),p=byId[id];total+=p.price*qty;var row=mk('div','basket-line');var img=document.createElement('img');img.src=p.image_url || '/static/fallback.svg';img.alt=p.name;var details=mk('div');var title=mk('h3','',p.name),price=mk('p','',p.price?'$'+Number(p.price).toFixed(2)+' CAD':'Complimentary');var remove=mk('button','remove-line','Remove');remove.type='button';remove.addEventListener('click',function(){var next=getBasket();delete next[id];setBasket(next);renderBasket();});details.append(title,price,remove);var controls=mk('div','qty-control');var dec=mk('button','','−'),number=mk('span','',String(qty)),inc=mk('button','','+');dec.type='button';inc.type='button';dec.setAttribute('aria-label','Decrease '+p.name);inc.setAttribute('aria-label','Increase '+p.name);dec.addEventListener('click',function(){var next=getBasket();if(next[id]<=1)delete next[id];else next[id]--;setBasket(next);renderBasket();});inc.addEventListener('click',function(){var next=getBasket();next[id]=Math.min(99,next[id]+1);setBasket(next);renderBasket();});controls.append(dec,number,inc);row.append(img,details,controls);basketLines.appendChild(row);});}
+      document.getElementById('basket-total').textContent='$'+total.toFixed(2)+' CAD';var send=document.getElementById('send-basket');if(send){send.style.pointerEvents=known.length?'auto':'none';send.style.opacity=known.length?'1':'.5';}
+    }renderBasket();}
+  var form=document.getElementById('inquiry-form');if(form){var input=document.getElementById('basket-items');var lines=Object.entries(getBasket());if(input&&lines.length){input.value=lines.map(function(pair){return pair[0]+' × '+pair[1];}).join(', ').slice(0,1400);}var kind=document.getElementById('inquiry_type');if(kind&&kind.value==='order'&&lines.length){var area=document.getElementById('message');if(area&&!area.value){area.value='Hello! I would like to ask about these items from my basket: '+input.value+'. Please confirm availability and final pricing.';}}}
+  refreshCount();
+})();
