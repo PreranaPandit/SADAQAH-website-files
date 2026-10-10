@@ -1,0 +1,28 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#36473a">
+<meta name="description" content="SADAQAH is a neighborhood-minded home for prayer mats, the Qur’an, beginner-friendly Islamic books, attar and community.">
+<title>{% block title %}SADAQAH · A little closer to what matters{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght,SOFT@9..144,400,35;9..144,500,35;9..144,600,35;9..144,700,35&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/site.css">
+</head><body data-page="{{ current_path }}">
+<div class="notice"><span>Thoughtfully gathered for faith, home & everyday life</span><span class="notice-sprig">✳</span><span>Made to welcome every beginning</span></div>
+<header class="site-header"><div class="shell header-inner">
+<a class="brand" href="/" aria-label="SADAQAH home"><span class="brand-emblem">☾</span><span><strong>SADAQAH</strong><small>FAITH · HOME · COMMUNITY</small></span></a>
+<button class="mobile-menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+<nav id="site-nav" class="primary-nav" aria-label="Main navigation">
+<a class="{% if current_path=='/' %}active{% endif %}" href="/">Home</a>
+<a class="{% if current_path.startswith('/shop') or current_path.startswith('/product/') %}active{% endif %}" href="/shop">The shop</a>
+<a class="{% if current_path=='/new-to-islam' %}active{% endif %}" href="/new-to-islam">New to Islam?</a>
+<a class="{% if current_path=='/about' %}active{% endif %}" href="/about">Our story</a>
+<a class="{% if current_path=='/contact' %}active{% endif %}" href="/contact">Contact</a>
+</nav>
+<div class="header-actions"><div class="hours-pill" id="open-indicator"><span class="status-dot {% if hours_status.open %}is-open{% endif %}"></span><span>{{ hours_status.label }}</span></div><a class="cart-button" href="/basket" aria-label="View basket"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 8h16l-1.5 12h-13zM9 9V6a3 3 0 016 0v3"/></svg><span class="cart-count" data-basket-count>0</span></a></div>
+</div></header>
+{% if demo_banner %}<div class="demo-ribbon"><div class="shell">Preview shop · Products, prices, specials and store hours are examples until confirmed by SADAQAH.</div></div>{% endif %}
+<main id="main">{% block content %}{% endblock %}</main>
+<footer class="footer"><div class="shell"><div class="footer-top"><div class="footer-story"><a class="brand footer-logo" href="/"><span class="brand-emblem">☾</span><span><strong>SADAQAH</strong><small>FAITH · HOME · COMMUNITY</small></span></a><p>Objects for the everyday. Space for the soul. A shop rooted in the belief that everyone deserves a warm welcome.</p><span class="mini-script">With care, always. ✻</span></div><div><h4>Explore</h4><a href="/shop">Shop all</a><a href="/shop?category=prayer">Prayer essentials</a><a href="/shop?category=fragrance">Musk & attar</a><a href="/new-to-islam">New to Islam?</a></div><div><h4>We're here</h4><a href="/about">About SADAQAH</a><a href="/contact">Contact us</a><a href="/inquire?kind=catering">Catering & events</a><a href="/inquire?kind=mentor">Ask about a mentor</a></div><div><h4>Sample shop hours</h4><div class="footer-hours">{% for h in hours_status.schedule %}<span>{{ h.day[:3] }}</span><span>{% if h.closed %}Closed{% else %}{{ h.opens }}–{{ h.closes }}{% endif %}</span>{% endfor %}</div><p class="tiny muted">Shown in {{ hours_status.timezone }}. Actual shop details to be confirmed.</p></div></div><div class="footer-bottom"><span>© SADAQAH {{ 2026 }} · Built with purpose</span><div><a href="/privacy">Privacy</a><a href="/admin/login">Shop admin</a><a href="https://unsplash.com/license" target="_blank" rel="noopener">Photo license</a></div><span>Photography illustrates the collection, not actual stock.</span></div></div></footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="/static/site.js" defer></script>
+{% block scripts %}{% endblock %}
+</body></html>
